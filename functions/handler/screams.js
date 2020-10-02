@@ -26,7 +26,7 @@ exports.postScream = (req, res) => {
 
     const newScream = {
         body: req.body.body,
-        userHandle: req.user.name,
+        userHandle: req.user.handle,
         createdAt: new Date().toISOString()
     };
 

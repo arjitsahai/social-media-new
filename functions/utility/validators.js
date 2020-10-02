@@ -20,7 +20,7 @@ exports.validateSignup = (newUser) => {
 
     if (isEmpty(newUser.password)) errors.password = 'must not be empty';
     if (newUser.password !== newUser.confirmPassword) errors.confirmPassword = 'password do not match';
-    if (isEmpty(newUser.name)) errors.name = 'must not be empty';
+    if (isEmpty(newUser.handle)) errors.handle = 'must not be empty';
 
     return {
         errors,
@@ -38,4 +38,17 @@ exports.validateLogin = (user) => {
         errors,
         valid: Object.keys(errors).length === 0 ? true : false
     }
+}
+
+exports.reduceUserDetails = (data) => {
+    let userDetails = {};
+
+    if (!isEmpty(data.bio.trim())) this.reduceUserDetails.bio = data.bio;
+    if (!isEmpty(data.website.trim())) {
+        if (data.website.trim().substring(0, 4) !== 'http') {
+            userDetails.website = `http://${data.website.trim()}`;
+        } else userDetails.website = data.website;
+    }
+    if (!isEmpty(data.location.trim())) this.reduceUserDetails.location = data.loaction;
+    return userDetails;
 }

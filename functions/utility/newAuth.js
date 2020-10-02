@@ -17,7 +17,7 @@ module.exports = (req, res, next) => {
                 .get();
         })
         .then((data) => {
-            req.user.name = data.docs[0].data().name;
+            req.user.handle = data.docs[0].data().handle;
             return next();
         })
         .catch((err) => {

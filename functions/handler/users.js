@@ -4,14 +4,14 @@ const firebaseConfig = require('../utility/config');
 const firebase = require('firebase');
 firebase.initializeApp(firebaseConfig);
 
-const { validateSignup, validateLogin } = require('../utility/validators');
+const { validateSignup, validateLogin, reduceUserDetails } = require('../utility/validators');
 
 exports.signup = (req, res) => {
     const newUser = {
         email: req.body.email,
         password: req.body.password,
         confirmPassword: req.body.confirmPassword,
-        name: req.body.name
+        handle: req.body.handle
     };
 
     const { valid, errors } = validateSignup(newUser);
@@ -20,7 +20,7 @@ exports.signup = (req, res) => {
 
     let token, userId;
 
-    db.doc(`/users/${newUser.name}`).get()
+    db.doc(`/users/${newUser.handle}`).get()
         .then((doc) => {
             if (doc.exists) {
                 return res.status(400).json({ email: 'this email is already used!' });
@@ -35,12 +35,12 @@ exports.signup = (req, res) => {
         .then((idToken) => {
             token = idToken;
             const userCredentials = {
-                name: newUser.name,
+                handle: newUser.handle,
                 email: newUser.email,
                 createdAt: new Date().toISOString(),
                 userId
             };
-            return db.doc(`/user/${newUser.name}`).set(userCredentials);
+            return db.doc(`/user/${newUser.handle}`).set(userCredentials);
         })
         .then(() => {
             return res.status(201).json({ token });
@@ -80,5 +80,18 @@ exports.login = (req, res) => {
             } else {
                 return res.status(500).json({ error: err.code });
             }
+        });
+}
+
+exports.addUserDetails = (req, res) => {
+    let userDetails = reduceUserDetails(req.body);
+
+    db.doc(`/users/${req.user.handle}`).update(userDetails)
+        .then(() => {
+            return res.json({ message: 'details added successfully' });
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.code })
         });
 }
